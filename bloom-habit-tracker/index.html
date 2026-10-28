@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bloom · Habit Tracker</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- ambient background orbs -->
+  <div class="bg-orb orb-1" aria-hidden="true"></div>
+  <div class="bg-orb orb-2" aria-hidden="true"></div>
+  <div class="bg-orb orb-3" aria-hidden="true"></div>
+
+  <header class="app-header">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">🌸</div>
+      <div>
+        <h1>Bloom</h1>
+        <p class="tagline">Grow better, one day at a time</p>
+      </div>
+    </div>
+    <div class="date-chip" id="dateChip">—</div>
+  </header>
+
+  <main class="layout">
+
+    <!-- Stats row -->
+    <section class="stats-grid" aria-label="Your statistics">
+      <div class="card ring-card">
+        <div class="ring-wrap">
+          <svg class="ring" viewBox="0 0 120 120" role="img" aria-label="Today's completion percentage">
+            <defs>
+              <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#8b5cf6" />
+                <stop offset="60%" stop-color="#c084fc" />
+                <stop offset="100%" stop-color="#f472b6" />
+              </linearGradient>
+            </defs>
+            <circle class="ring-bg" cx="60" cy="60" r="52" />
+            <circle class="ring-fill" id="ringFill" cx="60" cy="60" r="52" />
+          </svg>
+          <div class="ring-center">
+            <span class="ring-percent" id="ringPercent">0%</span>
+            <small>today</small>
+          </div>
+        </div>
+        <p class="ring-caption" id="ringCaption">No habits yet</p>
+      </div>
+
+      <div class="card stat-card">
+        <span class="stat-emoji">🔥</span>
+        <div class="stat-text"><strong id="statBestStreak">0</strong><small>top streak</small></div>
+      </div>
+
+      <div class="card stat-card">
+        <span class="stat-emoji">✅</span>
+        <div class="stat-text"><strong id="statWeekDone">0</strong><small>done this week</small></div>
+      </div>
+
+      <div class="card stat-card">
+        <span class="stat-emoji">🌱</span>
+        <div class="stat-text"><strong id="statActive">0</strong><small>active habits</small></div>
+      </div>
+    </section>
+
+    <!-- Add habit -->
+    <section class="card add-card">
+      <h2>🌈 Add a new habit</h2>
+      <form id="addForm" novalidate>
+        <div class="add-row">
+          <input type="text" id="habitName" maxlength="50" placeholder="Habit name, e.g. Drink water" autocomplete="off" />
+          <input type="text" id="habitEmoji" maxlength="4" placeholder="🌟" aria-label="Habit emoji (optional)" autocomplete="off" />
+          <button type="submit" class="btn-primary">Add habit</button>
+        </div>
+        <div class="emoji-row" id="emojiRow" role="group" aria-label="Suggested emojis"></div>
+        <p class="form-hint">Pick a suggested emoji or type your own — the emoji is optional.</p>
+        <p class="form-error" id="formError" role="alert"></p>
+      </form>
+    </section>
+
+    <!-- Habit cards -->
+    <section aria-label="Your habits">
+      <div class="section-head">
+        <h2>Today's habits</h2>
+        <span class="today-count" id="todayCount"></span>
+      </div>
+      <div class="habits-grid" id="habitsGrid"></div>
+      <div class="card empty-state" id="emptyState" hidden>
+        <div class="empty-emoji">🌷</div>
+        <h3>No habits yet</h3>
+        <p>Add your first habit above and start your journey. Small steps every day bloom into big change.</p>
+      </div>
+    </section>
+
+    <!-- Chart + Calendar -->
+    <div class="panels">
+      <section class="card chart-card" aria-label="Weekly progress chart">
+        <h2>📊 This week</h2>
+        <div class="chart" id="weekChart"></div>
+        <p class="chart-sub" id="weekSub"></p>
+      </section>
+
+      <section class="card calendar-card" aria-label="Calendar of completed habits">
+        <div class="cal-header">
+          <button class="icon-btn nav-btn" id="calPrev" aria-label="Previous month">‹</button>
+          <h2 id="calTitle">—</h2>
+          <button class="icon-btn nav-btn" id="calNext" aria-label="Next month">›</button>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div class="day-detail" id="dayDetail"></div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Edit habit modal -->
+  <div class="modal-backdrop" id="editModal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="editTitle">
+      <h2 id="editTitle">Edit habit</h2>
+      <label class="field-label" for="editName">Name</label>
+      <input type="text" id="editName" maxlength="50" autocomplete="off" />
+      <label class="field-label" for="editEmoji">Emoji (optional)</label>
+      <input type="text" id="editEmoji" maxlength="4" autocomplete="off" />
+      <div class="emoji-row small" id="editEmojiRow" role="group" aria-label="Suggested emojis"></div>
+      <p class="form-error" id="editError" role="alert"></p>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="editCancel">Cancel</button>
+        <button class="btn-primary" id="editSave">Save changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete confirmation modal -->
+  <div class="modal-backdrop" id="confirmModal" hidden>
+    <div class="modal" role="alertdialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <h2 id="confirmTitle">Delete habit?</h2>
+      <p id="confirmText" class="confirm-text"></p>
+      <div class="modal-actions">
+        <button class="btn-ghost" id="confirmCancel">Keep it</button>
+        <button class="btn-danger" id="confirmDelete">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-wrap" id="toastWrap" aria-live="polite"></div>
+  <div class="confetti-wrap" id="confettiWrap" aria-hidden="true"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
